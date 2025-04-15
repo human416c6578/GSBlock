@@ -16,6 +16,9 @@
 #define MAX_DUCKS 2
 #define MAX_TOUCHES 3
 
+#define COUNT_TOUCHES_TIME 1.0
+#define MIN_SPEED_TOUCH 0.5
+
 new duck_pressed[33];
 new Float:push_speed[33];
 new Float:start_time[33];
@@ -49,8 +52,9 @@ public client_PreThink(id)
 	if(!g_bTouchingPush[id]) return PLUGIN_CONTINUE;
 
 	static oldbuttons;
-	oldbuttons = pev(id, pev_oldbuttons);
 	static buttons;
+
+	oldbuttons = pev(id, pev_oldbuttons);
 	buttons = pev(id, pev_button);
 
 	if(buttons & IN_DUCK && !(oldbuttons & IN_DUCK))
@@ -78,7 +82,6 @@ public TouchPush(ent, id)
 		StartTouch(id);
 	}
 		
-
 	g_iTouchingPushEnt[id] = ent;
 }
 
@@ -116,11 +119,11 @@ public EndTouch(id)
 	if(duck_pressed[id] > MAX_DUCKS)
 		set_player_speed(id, start_vel[id]);
 
-	if(gain > push_speed[id] * 0.5)
+	if(gain > push_speed[id] * MIN_SPEED_TOUCH)
 		touches[id]++;
 	duck_pressed[id] = 0;
 
-	set_task(1.0, "ResetTouches", id);
+	set_task(COUNT_TOUCHES_TIME, "ResetTouches", id);
 }
 
 public ResetTouches(id)
